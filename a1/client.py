@@ -1,3 +1,12 @@
+# CS656 - Computer Network - Fall 2019
+# Assignment 1
+# Introduction to Socket Programming
+#
+# client.py
+# This client program asks for new message, connects to the message server,
+# retrieves stored messages from the message server, prints them on display,
+# and then send in the new message to the server.
+
 import sys
 import socket
 
@@ -60,6 +69,7 @@ def main():
         n_port = sys.argv[2]
         req_code = sys.argv[3]
         msg = sys.argv[4]
+
         client = Client(str(server_address), int(n_port), req_code)
         client.receive_msg(str(server_address))
         client.send_msg(str(server_address), msg)
