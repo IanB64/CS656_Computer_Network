@@ -1,3 +1,11 @@
+# CS656 - Computer Network - Fall 2019
+# Assignment 1
+# Introduction to Socket Programming
+#
+# server.py
+# This message server handles client connections, sending stored messages to the client
+# and stores new input messages from the client.
+
 import sys
 import socket
 import threading
