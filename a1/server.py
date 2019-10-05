@@ -41,7 +41,7 @@ class Server:
             else:  # Negotiation with client succeed
                 client.send(str(self.server_udp_sock.getsockname()[1]).encode())
                 client_thread = threading.Thread(target=self.message_handler)  # Create new thread
-                client_thread.daemon = True
+                client_thread.daemon = True # Reference: https://youtu.be/D0SLpD7JvZI
                 client_thread.start()
             client.close()
 
@@ -73,7 +73,6 @@ class Server:
     def shutdown(self):
         while True:
             if self.terminate:
-                self.msg = []
                 self.server_tcp_sock.close()
                 self.server_udp_sock.close()
                 exit(0)
