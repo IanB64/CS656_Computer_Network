@@ -1,0 +1,25 @@
+CS 656 - Fall 2019
+Yilun Bai
+20774926
+
+Files: 
+	1. Files server.py and client.py are Python scripts to create a simple server-client chatroom program. Using basic socket programming, sending and receiving TCP and UDP packets.
+	2. There is no Makefile since the program is written in Python
+	3. server.sh and client.sh are shell scripts provided and modified according to my choice of programming language (Python). They will be executed and which will then call the server and client programs. 
+
+Compile:
+	1. Since the programs are written in Python, there is no need to compile them.
+
+Execute:
+To run the server, execute command: ./server.sh <req_code>
+To run the client, execute command: ./client.sh <server_address> <n_port> <req_code> <msg>
+
+Parameters:
+<req_code>			A numerical validation code.
+<server_address>	The name/IP of the machine that the server is running on.
+<n_port> 	  		The negotiate port printed out by the server on init
+<msg> 		  		The input message to the server.
+Note: "TERMINATE" as a <msg> input would shutdown the server.
+
+Environments:
+The program is ran and tested in cmd on a Windows10 machine, and ubuntu1804-004, ubuntu1904-008 machines on the Linux student environment at University of Waterloo.
