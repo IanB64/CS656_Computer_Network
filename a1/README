@@ -23,3 +23,6 @@ Note: "TERMINATE" as a <msg> input would shutdown the server.
 
 Environments:
 The program is ran and tested in cmd on a Windows10 machine, and ubuntu1804-004, ubuntu1904-008 machines on the Linux student environment at University of Waterloo.
+
+Citation:
+https://www.youtube.com/watch?v=D0SLpD7JvZI&t=346s
