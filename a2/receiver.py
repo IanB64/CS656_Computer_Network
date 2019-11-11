@@ -20,18 +20,13 @@ def receive(filename, emulatorAddr, emuReceiveACK, client_udp_sock):
     while True:
         msg, _ = client_udp_sock.recvfrom(4096)
         data_packet = packet.parse_udp_data(msg)
-        type = data_packet.type
+        packet_type = data_packet.type
         seq_num = data_packet.seq_num
         data = data_packet.data
         arrival_log.append(seq_num)
 
-        print("P", end='')
-        print(expected_pkt_num, end=' ')
-
-        if type == 2:
+        if packet_type == 2 and seq_num == expected_pkt_num % 32:
             client_udp_sock.sendto(packet.create_eot(seq_num).get_udp_data(), (emulatorAddr, emuReceiveACK))
-            # print("A",end= '')
-            # print(seq_num,end= ' ')
             break
 
         if seq_num == expected_pkt_num % SEQ_MODULO:
@@ -41,14 +36,9 @@ def receive(filename, emulatorAddr, emuReceiveACK, client_udp_sock):
         if expected_pkt_num != 0:
             ack_num = (expected_pkt_num - 1) % SEQ_MODULO
             client_udp_sock.sendto(packet.create_ack(ack_num).get_udp_data(), (emulatorAddr, emuReceiveACK))
-            # print("A",end= '')
-            # print(ack_num,end= ' ')
-
 
     file.write(save_data)
     file.close()
-    print("\narrival_log",end=' ')
-    print(arrival_log)
 
 
 def writeLogFile():
