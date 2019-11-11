@@ -3,47 +3,52 @@ import socket
 from packet import packet
 
 arrival_log = []
-expected_seq_num = 0
+expected_pkt_num = 0
 SEQ_MODULO = packet.SEQ_NUM_MODULO  # 32
-firstTime = True
 
 
 def receive(filename, emulatorAddr, emuReceiveACK, client_udp_sock):
+    global expected_pkt_num
+    save_data = bytearray()
+
     try:
-        file = open(filename, 'w+')
+        file = open(filename, 'wb')
     except IOError:
         print('Unable to open', filename)
         return
 
     while True:
-        msg, address = client_udp_sock.recvfrom(4096)
+        msg, _ = client_udp_sock.recvfrom(4096)
         data_packet = packet.parse_udp_data(msg)
-        pac_seq_num = data_packet.seq_num
-        pac_data = data_packet.data
-        pac_type = data_packet.type
-        arrival_log.append(pac_seq_num)
+        type = data_packet.type
+        seq_num = data_packet.seq_num
+        data = data_packet.data
+        arrival_log.append(seq_num)
 
-        global expected_seq_num, firstTime
+        print("P", end='')
+        print(expected_pkt_num, end=' ')
 
-        if pac_type == 2:
-            client_udp_sock.sendto(packet.create_eot(pac_seq_num).get_udp_data(), (emulatorAddr, emuReceiveACK))
+        if type == 2:
+            client_udp_sock.sendto(packet.create_eot(seq_num).get_udp_data(), (emulatorAddr, emuReceiveACK))
+            # print("A",end= '')
+            # print(seq_num,end= ' ')
             break
 
-        if firstTime and pac_seq_num != 0:
-            continue
-        else:
-            firstTime = False
-            if pac_seq_num == expected_seq_num:
-                client_udp_sock.sendto(packet.create_ack(pac_seq_num).get_udp_data(), (emulatorAddr, emuReceiveACK))
+        if seq_num == expected_pkt_num % SEQ_MODULO:
+            expected_pkt_num += 1
+            save_data.extend(data.encode())
 
-                expected_seq_num = (expected_seq_num + 1) % SEQ_MODULO
+        if expected_pkt_num != 0:
+            ack_num = (expected_pkt_num - 1) % SEQ_MODULO
+            client_udp_sock.sendto(packet.create_ack(ack_num).get_udp_data(), (emulatorAddr, emuReceiveACK))
+            # print("A",end= '')
+            # print(ack_num,end= ' ')
 
-                file.write(pac_data)
-            else:
-                client_udp_sock.sendto(packet.create_ack((expected_seq_num - 1 + SEQ_MODULO) % SEQ_MODULO)
-                                       .get_udp_data(), (emulatorAddr, emuReceiveACK))
 
+    file.write(save_data)
     file.close()
+    print("\narrival_log",end=' ')
+    print(arrival_log)
 
 
 def writeLogFile():
