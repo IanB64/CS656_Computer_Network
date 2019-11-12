@@ -62,14 +62,14 @@ def sendPacket(packets, emulatorAddr, emuReceiveData, client_udp_sock):
                 lock.acquire()
                 nextseqnum += 1
                 lock.release()
-        else:   # TIMEOUT occur
+        else:  # TIMEOUT occur
             lock.acquire()
-            nextseqnum = send_base      # resend un-ACKed packets in the window
-            timer_base = time.time()    # update timer base time
+            nextseqnum = send_base  # resend un-ACKed packets in the window
+            timer_base = time.time()  # update timer base time
             lock.release()
 
-    time_log.append(time.time())    # record the end time
-    time_log.append(int(round((time_log[1] - time_log[0]) * 1000))) # record the transmission time
+    time_log.append(time.time())  # record the end time
+    time_log.append(int(round((time_log[1] - time_log[0]) * 1000)))  # record the transmission time
 
 
 def receiveACK(client_udp_sock):
@@ -99,7 +99,7 @@ def receiveACK(client_udp_sock):
         if distance < WINDOW_SIZE:  # update the base
             send_base += distance + 1
             lock.acquire()
-            timer_base = time.time()    # update the timer base time
+            timer_base = time.time()  # update the timer base time
             lock.release()
 
 
