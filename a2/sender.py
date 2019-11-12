@@ -1,3 +1,14 @@
+# CS656 - Computer Network - Fall 2019
+# Assignment 2
+# Introduction to Socket Programming
+#
+# sender.py
+# Implement the Go-Back-N protocol, which could be used to transfer a text file from one host to another
+# across an unreliable network. The protocol should be able to handle network errors such as packet loss and
+# duplicate packets.
+# The sender program reads data from the specified file and send it using the Go-Back-N protocol
+# to the receiver via the network emulator
+
 import sys
 import socket
 import threading
@@ -8,7 +19,7 @@ import math
 # Global Variables
 # Fixed
 WINDOW_SIZE = 10
-TIMEOUT = 0.010  # in second
+TIMEOUT = 0.100  # in second
 DATA_SIZE = packet.MAX_DATA_LENGTH  # 500 bytes
 SEQ_MODULO = packet.SEQ_NUM_MODULO  # 32
 lock = threading.Lock()  # lock for multi thread critical sections
@@ -17,6 +28,8 @@ lock = threading.Lock()  # lock for multi thread critical sections
 send_base = 0  # 0 - 31
 nextseqnum = 0
 terminate = False
+timer_base = None
+
 # log file tracking
 seq_num_log = []
 ack_log = []
@@ -25,53 +38,42 @@ time_log = []
 NUM_OF_PACKETS = 0
 
 
-def timeout():
-    global nextseqnum, terminate, NUM_OF_PACKETS, timer
-
-    lock.acquire()
-    nextseqnum = send_base
-    lock.release()
-
-    if send_base == NUM_OF_PACKETS - 1:
-        lock.acquire()
-        terminate = True
-        lock.release()
-        return
-
-    if not terminate:
-        lock.acquire()
-        timer = threading.Timer(TIMEOUT, timeout)
-        timer.start()
-        lock.release()
-
-
-timer = threading.Timer(TIMEOUT, timeout)
-
-
 def sendPacket(packets, emulatorAddr, emuReceiveData, client_udp_sock):
-    global nextseqnum, timer
+    global nextseqnum, timer_base
 
-    ack_thread = threading.Thread(target=receiveACK,
-                                  args=(client_udp_sock,))  # start listening to the ACKs in new thread
+    # start listening to the ACKs in a new thread
+    ack_thread = threading.Thread(target=receiveACK, args=(client_udp_sock,))
     ack_thread.start()
 
-    start_time = time.time()
-    timer.start()
-    while not terminate:
-        if nextseqnum < min(send_base + WINDOW_SIZE, len(packets)):  # if window is not full, send segments
-            client_udp_sock.sendto(packets[nextseqnum].get_udp_data(), (emulatorAddr, emuReceiveData))
-            seq_num_log.append(packets[nextseqnum].seq_num)
+    # record the start time before sending the first packet
+    time_log.append(time.time())
 
+    # initiate the timer base time
+    lock.acquire()
+    timer_base = time.time()
+    lock.release()
+
+    while not terminate:
+        if time.time() - timer_base < TIMEOUT:
+            if nextseqnum < min(send_base + WINDOW_SIZE, len(packets)):  # if window is not full, send segments
+                client_udp_sock.sendto(packets[nextseqnum].get_udp_data(), (emulatorAddr, emuReceiveData))
+                seq_num_log.append(packets[nextseqnum].seq_num)
+
+                lock.acquire()
+                nextseqnum += 1
+                lock.release()
+        else:   # TIMEOUT occur
             lock.acquire()
-            nextseqnum += 1
+            nextseqnum = send_base      # resend un-ACKed packets in the window
+            timer_base = time.time()    # update timer base time
             lock.release()
 
-    end_time = time.time()
-    time_log.append(end_time - start_time)
+    time_log.append(time.time())    # record the end time
+    time_log.append(int(round((time_log[1] - time_log[0]) * 1000))) # record the transmission time
 
 
 def receiveACK(client_udp_sock):
-    global send_base, terminate, timer
+    global send_base, terminate, timer_base
 
     while not terminate:
         msg, _ = client_udp_sock.recvfrom(4096)
@@ -80,7 +82,8 @@ def receiveACK(client_udp_sock):
         ack_type = ack_packet.type
         ack_log.append(ack_packet.seq_num)
 
-        if ack_type == 2:  # when receive an ack for EOT
+        # if received an ack for EOT, exit
+        if ack_type == 2:
             lock.acquire()
             terminate = True
             lock.release()
@@ -91,16 +94,12 @@ def receiveACK(client_udp_sock):
             distance = ack_seq_num - send_base % SEQ_MODULO
         elif send_base % SEQ_MODULO > ack_seq_num:
             distance = ack_seq_num + SEQ_MODULO - send_base % SEQ_MODULO
-        if distance < WINDOW_SIZE:
+
+        if distance < WINDOW_SIZE:  # update the base
             send_base += distance + 1
-
-        if timer.isAlive():
-            timer.cancel()
-
-        lock.acquire()
-        timer = threading.Timer(TIMEOUT, timeout)
-        lock.release()
-        timer.start()
+            lock.acquire()
+            timer_base = time.time()    # update the timer base time
+            lock.release()
 
 
 def fileToPacket(filename):
@@ -135,8 +134,7 @@ def writeLogFile():
 
     # time.log
     f = open('time.log', 'w+')
-    for log in time_log:
-        f.write(str(log) + "\n")
+    f.write(str(time_log[2]) + "\n")
     f.close()
 
 
@@ -158,6 +156,8 @@ def main():
     sendPacket(packets, emulatorAddr, emuReceiveData, client_udp_sock)
 
     writeLogFile()
+
+    print("\ntime_log: ", time_log[2])
 
 
 if __name__ == '__main__':
