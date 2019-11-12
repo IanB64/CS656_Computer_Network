@@ -36,7 +36,7 @@ def receive(filename, emulatorAddr, emuReceiveACK, client_udp_sock):
         arrival_log.append(seq_num)
 
         # receives EOT, send EOT back and exit
-        if packet_type == 2 and seq_num == expected_pkt_num % 32:
+        if packet_type == 2 and seq_num == expected_pkt_num % SEQ_MODULO:
             client_udp_sock.sendto(packet.create_eot(seq_num).get_udp_data(), (emulatorAddr, emuReceiveACK))
             break
 
