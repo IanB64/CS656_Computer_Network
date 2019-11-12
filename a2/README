@@ -1,0 +1,44 @@
+CS 656 - Computer Network - Fall 2019
+Yilun Bai
+20774926
+
+Files: 
+	1. Files sender.py and receiver.py are Python scripts to implement the Go-Back-N protocol, which could be used to transfer a text file from one host to another across an unreliable network. The protocol should be able to handle network errors such as packet loss and duplicate packets.
+	2. There is no Makefile since the program is written in Python
+	3. sender.sh and receiver.sh are shell scripts provided and modified according to my choice of programming language (Python). They will be executed and which will then call the server and client programs. 
+
+Compile:
+	1. Since the programs are written in Python, there is no need to compile them.
+
+Execute:
+To run the emulator, on host 1, execute command: ./nEmulator-linux386 <port1> host2 <port2> <port3> host3 <port4> <max_delay> <discard_prob> <verbose-mode>
+To run the receiver, on host 2,  execute command: ./receiver.sh host1 <port3> <port2> <output file>
+To run the sender, on host 3, execute command: ./sender.sh host1 <port1> <port4> <input file>
+
+Parameters:
+sender.py:
+<host address of the network emulator>
+<UDP port number used by the emulator to receive data from the sender>
+<UDP port number used by the sender to receive ACKs from the emulator>
+<name of the file to be transferred>
+
+receiver.py:
+<hostname for the network emulator>
+<UDP port number used by the link emulator to receive ACKs from the receiver>
+<UDP port number used by the receiver to receive data from the emulator>
+<name of the file into which the received data is written>
+
+nEmulator:
+<emulator's receiving UDP port number in the forward (sender) direction>
+<receiver’s network address>
+<receiver’s receiving UDP port number>
+<emulator's receiving UDP port number in the backward (receiver) direction>
+<sender’s network address>
+<sender’s receiving UDP port number>
+<maximum delay of the link in units of millisecond>
+<packet discard probability 0 <= p <= 1 >
+<verbose-mode> (Boolean: if 1, the network emulator outputs its internal processing)
+
+
+Environments:
+The program is ran and tested on ubuntu1804-002(emulator), ubuntu1904-004(receiver), and ubuntu1804-008(sender) machines on the Linux student environment at University of Waterloo.
