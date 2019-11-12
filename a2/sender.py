@@ -158,8 +158,6 @@ def main():
 
     writeLogFile()
 
-    print("\ntime_log: ", time_log[2])
-
 
 if __name__ == '__main__':
     main()
