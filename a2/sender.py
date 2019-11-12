@@ -80,7 +80,6 @@ def receiveACK(client_udp_sock):
         ack_packet = packet.parse_udp_data(msg)
         ack_seq_num = ack_packet.seq_num
         ack_type = ack_packet.type
-        ack_log.append(ack_packet.seq_num)
 
         # if received an ack for EOT, exit
         if ack_type == 2:
@@ -88,6 +87,8 @@ def receiveACK(client_udp_sock):
             terminate = True
             lock.release()
             break
+
+        ack_log.append(ack_packet.seq_num)
 
         distance = 0
         if send_base % SEQ_MODULO < ack_seq_num:
