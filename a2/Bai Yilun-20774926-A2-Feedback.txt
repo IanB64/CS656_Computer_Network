@@ -1,0 +1,17 @@
+Late Penalty: 0.00
+Code Modification Penalty: 0.00
+Grader: Shihab Chowdhury
+Test 1 (15): 15.00
+Test 2 (10): 10.00
+Test 3 (10): 10.00
+Test 4 (5): 5.00
+Test 5 (5): 5.00
+Test 6 (5): 5.00
+Test 7 (10): 10.00
+Test 8 (10): 10.00
+Timing Experiment (20): 20.00
+Readme/Makefile/Shell Scripts (5): 5.00
+Comment/code style (5): 5.00
+Final Grade (100): 100.00
+Comment: 
+Note: If you have received 0 for the tests, then it may be because of compilation error, your code getting stuck and getting timed out, or your code not working the way it should. If you have received a 10% Code Modification Penalty (Only on the automatic testing grade), It means your code has received 0 grade with automatic grading and we could make a small change to your code so that it runs the tests correctly. See the comment field for more information.
